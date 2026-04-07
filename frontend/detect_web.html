@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h2>Hệ thống Camera Giám sát Biển (FastAPI Backend)</h2>
+    <button onclick="goiApiFastAPI()">Quét Camera</button>
+    <p id="status"></p>
+    
+    <div style="position: relative; width: 400px; height: 400px; background-color: #e0f7fa; border: 1px solid black;">
+        <p style="text-align: center; padding-top: 180px;">(Giả lập ảnh camera biển)</p>
+        <div id="bbox" style="display: none; position: absolute; border: 3px solid red; color: red; font-weight: bold;">
+            <span id="label" style="background: white; padding: 2px;"></span>
+        </div>
+    </div>
+
+    <script>
+        // Production Backend URL (Render.com)
+        const API_BASE_URL = 'https://fastapi-detect-backend.onrender.com';
+        // For local testing: const API_BASE_URL = 'http://127.0.0.1:8000';
+        
+        function goiApiFastAPI() {
+            document.getElementById('status').innerText = "Đang gửi ảnh lên API...";
+            
+            // FastAPI nhận tham số trên URL (query parameter)
+            fetch(`${API_BASE_URL}/api/detect?image_id=cam_01`, {
+                method: 'POST',
+                headers: { 'accept': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('status').innerText = "Đã nhận kết quả!";
+                
+                // Lấy tọa độ từ JSON API trả về
+                const boxInfo = data.detections[0];
+                
+                // Vẽ Bounding Box lên màn hình
+                const bboxElement = document.getElementById('bbox');
+                bboxElement.style.display = "block";
+                bboxElement.style.left = boxInfo.x_min + 'px';
+                bboxElement.style.top = boxInfo.y_min + 'px';
+                bboxElement.style.width = (boxInfo.x_max - boxInfo.x_min) + 'px';
+                bboxElement.style.height = (boxInfo.y_max - boxInfo.y_min) + 'px';
+                
+                document.getElementById('label').innerText = `${boxInfo.object_class} (${boxInfo.confidence})`;
+            });
+        }
+    </script>
+</body>
+</html>
