@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fruit Detection AI - Hệ thống Nhận dạng Trái cây</title>
+    <title>Fruit Detection AI - Hê thong Nhan dang Trai cay</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -126,6 +126,7 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
+            z-index: 10;
         }
 
         .bounding-box {
@@ -133,19 +134,28 @@
             border: 3px solid;
             border-radius: 5px;
             background: rgba(255,255,255,0.1);
+            pointer-events: none;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .bounding-box:hover {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
         }
 
         .detection-label {
             position: absolute;
             top: -25px;
             left: 0;
-            background: var(--danger-color);
+            background: rgba(0, 0, 0, 0.8);
             color: white;
-            padding: 2px 8px;
-            border-radius: 5px;
-            font-size: 0.8rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
             font-weight: bold;
             white-space: nowrap;
+            z-index: 11;
         }
 
         .results-section {
@@ -296,7 +306,7 @@
     <div class="main-container">
         <div class="header-section">
             <h1><i class="fas fa-apple-alt"></i> Fruit Detection AI</h1>
-            <p>Hệ thống nhận dạng trái cây thông minh bằng YOLO</p>
+            <p>Hê thong nhan dang trai cay thong minh bang YOLO</p>
         </div>
 
         <div class="content-section">
@@ -304,10 +314,10 @@
                 <div class="col-lg-8">
                     <div class="upload-area" id="uploadArea">
                         <i class="fas fa-cloud-upload-alt upload-icon"></i>
-                        <h4>Tải ảnh lên để nhận dạng</h4>
-                        <p>Kéo thả ảnh vào đây hoặc click để chọn file</p>
+                        <h4>Tai anh len de nhan dang</h4>
+                        <p>Keo tha anh vao day hoac click de chon file</p>
                         <button class="btn btn-upload" onclick="document.getElementById('fileInput').click()">
-                            <i class="fas fa-folder-open"></i> Chọn ảnh
+                            <i class="fas fa-folder-open"></i> Chon anh
                         </button>
                         <input type="file" id="fileInput" class="file-input" accept="image/*" multiple>
                         <div class="progress-bar" id="progressBar"></div>
@@ -322,29 +332,29 @@
 
                     <div class="loading" id="loading">
                         <div class="spinner"></div>
-                        <p>Đang nhận dạng trái cây...</p>
+                        <p>Dang nhan dang trai cay...</p>
                     </div>
 
                     <div class="results-section" id="resultsSection">
-                        <h4><i class="fas fa-search"></i> Kết quả nhận dạng</h4>
+                        <h4><i class="fas fa-search"></i> Ket qua nhan dang</h4>
                         <div id="detectionResults"></div>
                         
                         <div class="stats-grid">
                             <div class="stat-card">
                                 <div class="stat-number" id="totalDetections">0</div>
-                                <div class="stat-label">Tổng đối tượng</div>
+                                <div class="stat-label">Tong doi tuong</div>
                             </div>
                             <div class="stat-card">
                                 <div class="stat-number" id="uniqueFruits">0</div>
-                                <div class="stat-label">Loại trái cây</div>
+                                <div class="stat-label">Loai trai cay</div>
                             </div>
                             <div class="stat-card">
                                 <div class="stat-number" id="avgConfidence">0%</div>
-                                <div class="stat-label">Độ tin cậy TB</div>
+                                <div class="stat-label">Do tin cay TB</div>
                             </div>
                             <div class="stat-card">
                                 <div class="stat-number" id="processingTime">0s</div>
-                                <div class="stat-label">Thời gian xử lý</div>
+                                <div class="stat-label">Thoi gian xu ly</div>
                             </div>
                         </div>
                     </div>
@@ -353,24 +363,24 @@
                 <div class="col-lg-4">
                     <div class="card">
                         <div class="card-header">
-                            <h5><i class="fas fa-info-circle"></i> Thông tin API</h5>
+                            <h5><i class="fas fa-info-circle"></i> Thong tin API</h5>
                         </div>
                         <div class="card-body">
-                            <p><strong>Backend:</strong> <span id="apiStatus" class="text-warning">Đang kết nối...</span></p>
-                            <p><strong>Model:</strong> <span id="modelStatus">Đang tải...</span></p>
+                            <p><strong>Backend:</strong> <span id="apiStatus" class="text-warning">Dang ket noi...</span></p>
+                            <p><strong>Model:</strong> <span id="modelStatus">Dang tai...</span></p>
                             <p><strong>Classes:</strong> <span id="classCount">-</span></p>
                         </div>
                     </div>
 
                     <div class="card mt-3">
                         <div class="card-header">
-                            <h5><i class="fas fa-apple-alt"></i> Trái cây có thể nhận dạng</h5>
+                            <h5><i class="fas fa-apple-alt"></i> Trai cay co the nhan dang</h5>
                         </div>
                         <div class="card-body">
                             <div class="fruit-gallery" id="fruitGallery">
                                 <div class="text-center">
                                     <div class="spinner"></div>
-                                    <p>Đang tải...</p>
+                                    <p>Dang tai...</p>
                                 </div>
                             </div>
                         </div>
@@ -378,25 +388,25 @@
 
                     <div class="card mt-3">
                         <div class="card-header">
-                            <h5><i class="fas fa-cog"></i> Cài đặt</h5>
+                            <h5><i class="fas fa-cog"></i> Cai dat</h5>
                         </div>
                         <div class="card-body">
                             <div class="mb-3">
-                                <label for="confidenceThreshold" class="form-label">Ngưỡng tin cậy</label>
+                                <label for="confidenceThreshold" class="form-label">Nguong tin cay</label>
                                 <input type="range" class="form-range" id="confidenceThreshold" 
                                        min="0.1" max="1.0" step="0.1" value="0.5">
-                                <small class="form-text">Giá trị: <span id="thresholdValue">0.5</span></small>
+                                <small class="form-text">Gia tri: <span id="thresholdValue">0.5</span></small>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="showLabels" checked>
                                 <label class="form-check-label" for="showLabels">
-                                    Hiển thị nhãn
+                                    Hien thi nhan
                                 </label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="autoDetect" checked>
                                 <label class="form-check-label" for="autoDetect">
-                                    Tự động nhận dạng khi tải ảnh
+                                    Tu dong nhan dang khi tai anh
                                 </label>
                             </div>
                         </div>
@@ -408,7 +418,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Production Backend URL (Render.com) - UPDATE WITH YOUR URL
+        // Production Backend URL (Render.com)
         const API_BASE_URL = 'https://fastapi-detect-project.onrender.com';
         // For local testing: const API_BASE_URL = 'http://127.0.0.1:8000';
         
@@ -421,7 +431,7 @@
                 // Check API health
                 const healthResponse = await fetch(`${API_BASE_URL}/api/health`);
                 if (healthResponse.ok) {
-                    document.getElementById('apiStatus').textContent = 'Đã kết nối';
+                    document.getElementById('apiStatus').textContent = 'Da ket noi';
                     document.getElementById('apiStatus').className = 'text-success';
                 }
 
@@ -435,7 +445,7 @@
                     document.getElementById('classCount').textContent = fruitsData.total_classes;
                 }
             } catch (error) {
-                document.getElementById('apiStatus').textContent = 'Kết nối thất bại';
+                document.getElementById('apiStatus').textContent = 'Ket noi that bai';
                 document.getElementById('apiStatus').className = 'text-danger';
                 console.error('API Error:', error);
             }
@@ -444,19 +454,19 @@
         function updateFruitGallery() {
             const gallery = document.getElementById('fruitGallery');
             const fruitEmojis = {
-                'banana': '🍌',
-                'apple': '🍎',
-                'orange': '🍊',
-                'grape': '🍇',
-                'watermelon': '🍉',
-                'strawberry': '🍓',
-                'mango': '🥭',
-                'pineapple': '🍍'
+                'banana': '??',
+                'apple': '??',
+                'orange': '??',
+                'grape': '??',
+                'watermelon': '??',
+                'strawberry': '??',
+                'mango': '??',
+                'pineapple': '??'
             };
 
             gallery.innerHTML = availableFruits.map(fruit => `
                 <div class="fruit-item">
-                    <div class="fruit-icon">${fruitEmojis[fruit] || '🍎'}</div>
+                    <div class="fruit-icon">${fruitEmojis[fruit] || '??'}</div>
                     <div>${fruit.charAt(0).toUpperCase() + fruit.slice(1)}</div>
                 </div>
             `).join('');
@@ -491,7 +501,7 @@
             
             const file = files[0];
             if (!file.type.startsWith('image/')) {
-                alert('Vui lòng chọn file ảnh!');
+                alert('Vui long chon file anh!');
                 return;
             }
 
@@ -534,11 +544,11 @@
                     showResults(data);
                     drawDetections(data.detections);
                 } else {
-                    alert(`Lỗi: ${data.detail || 'Không thể nhận dạng ảnh'}`);
+                    alert(`Loi: ${data.detail || 'Khong the nhan dang anh'}`);
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Lỗi kết nối đến server. Vui lòng thử lại!');
+                alert('Loi ket noi den server. Vui long thu lai!');
             } finally {
                 loading.classList.remove('show');
             }
@@ -563,8 +573,8 @@
                         <div>
                             <h6>${detection.class_name.charAt(0).toUpperCase() + detection.class_name.slice(1)}</h6>
                             <small class="text-muted">
-                                Vị trí: (${detection.bbox.x_min}, ${detection.bbox.y_min}) 
-                                → (${detection.bbox.x_max}, ${detection.bbox.y_max})
+                                Vi tri: (${detection.bbox.x_min}, ${detection.bbox.y_min}) 
+                                -> (${detection.bbox.x_max}, ${detection.bbox.y_max})
                             </small>
                         </div>
                         <span class="confidence-badge">
