@@ -6,6 +6,7 @@ from typing import List, Optional
 import time
 
 from fruit_detector import detect_fruits_in_image, get_available_fruits, fruit_detector
+from lightweight_detector import detect_fruits_in_image as lightweight_detect, get_available_fruits as lightweight_get_fruits
 
 app = FastAPI(title="Fruit Detection API", version="2.0")
 
@@ -101,6 +102,7 @@ async def detect_fruits_upload(
     image: UploadFile = File(..., description="Image file to analyze"),
     confidence_threshold: Optional[float] = Form(0.5, description="Minimum confidence threshold"),
     return_annotated: Optional[bool] = Form(True, description="Return image with bounding boxes drawn"),
+    use_lightweight: Optional[bool] = Form(False, description="Use lightweight detection (faster for serverless)"),
 ):
     """
     Detect fruits in uploaded image.
@@ -118,8 +120,13 @@ async def detect_fruits_upload(
     try:
         start_time = time.time()
 
-        # ✅ Chạy detection thật với YOLOv8
-        result = detect_fruits_in_image(image_data)
+        # ✅ Choose detection mode based on parameter
+        if use_lightweight:
+            # Lightweight detection for Vercel/Render
+            result = lightweight_detect(image_data)
+        else:
+            # Full YOLOv8 detection
+            result = detect_fruits_in_image(image_data)
 
         processing_time = time.time() - start_time
 
@@ -132,7 +139,7 @@ async def detect_fruits_upload(
         # ✅ FIX: Map đúng key 'class' → 'class_name'
         detections_out = [
             Detection(
-                class_name=d['class'],       # fruit_detector trả về key 'class'
+                class_name=d.get('class_name', d.get('class', 'unknown')),  # Handle both fields
                 class_id=d['class_id'],
                 confidence=d['confidence'],
                 bbox=BoundingBox(**d['bbox']),
