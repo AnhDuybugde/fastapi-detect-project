@@ -1,36 +1,14 @@
 # Simplified FastAPI - Only Lightweight Detection
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 from typing import List, Optional
 import time
 
-try:
-    from lightweight_detector import lightweight_detector, detect_fruits_in_image as lw_detect
-except ImportError:
-    pass
+# Only import lightweight detector
+from lightweight_detector import detect_fruits_in_image, get_available_fruits
 
-try:
-    from yolo_detector import yolo_detector
-    AI_AVAILABLE = True
-    # Pre-load model so /api/fruits has classes ready immediately
-    yolo_detector.load_model()
-except ImportError:
-    AI_AVAILABLE = False
-
-def detect_fruits_in_image(image_bytes: bytes):
-    if AI_AVAILABLE and yolo_detector.model is not None:
-        return yolo_detector.detect_image(image_bytes)
-    elif AI_AVAILABLE:
-        # Load the model the first time
-        yolo_detector.load_model()
-        if yolo_detector.model is not None:
-             return yolo_detector.detect_image(image_bytes)
-             
-    # Fallback to lightweight
-    return lw_detect(image_bytes)
-
-app = FastAPI(title="YOLO-World Fruit Detection API", version="4.0")
+app = FastAPI(title="Lightweight Fruit Detection API", version="3.0")
 
 # CORS middleware
 app.add_middleware(
@@ -66,7 +44,6 @@ class DetectionResponse(BaseModel):
     model_info: dict
     processing_time: float
     image_info: dict
-    image_size: Optional[dict] = None
     annotated_image: Optional[str] = None
 
 # Endpoints
@@ -74,23 +51,20 @@ class DetectionResponse(BaseModel):
 async def health_check():
     return {
         "status": "healthy",
-        "model_loaded": AI_AVAILABLE and yolo_detector.model is not None,
+        "model_loaded": True,
         "timestamp": time.time(),
-        "mode": "yolo_world" if AI_AVAILABLE else "lightweight_fallback"
+        "mode": "lightweight_only"
     }
 
 @app.get("/api/fruits")
 async def get_fruits():
     """Get list of detectable fruit classes."""
-    if AI_AVAILABLE:
-        return {"classes": yolo_detector.classes}
-    else:
-        return {"classes": list(lightweight_detector.fruit_classes.keys())}
+    return get_available_fruits()
 
 @app.post("/api/detect-upload", response_model=DetectionResponse)
 async def detect_fruits_upload(
     image: UploadFile = File(..., description="Image file to analyze"),
-    confidence_threshold: Optional[float] = Form(0.25, description="Minimum confidence threshold"),
+    confidence_threshold: Optional[float] = Form(0.5, description="Minimum confidence threshold"),
     return_annotated: Optional[bool] = Form(True, description="Return image with bounding boxes drawn"),
 ):
     """
@@ -135,12 +109,10 @@ async def detect_fruits_upload(
         # Vẽ bounding boxes nếu cần
         annotated_image = None
         if return_annotated:
-            if AI_AVAILABLE and yolo_detector.model is not None:
-                annotated_image = yolo_detector.draw_detections(image_data, filtered_detections)
-            else:
-                annotated_image = lightweight_detector.draw_detections(image_data, filtered_detections)
+            from lightweight_detector import lightweight_detector
+            annotated_image = lightweight_detector.draw_detections(image_data, filtered_detections)
 
-        detected_classes = list(set(d.get('class', d.get('class_name', 'unknown')) for d in filtered_detections))
+        detected_classes = list(set(d['class'] for d in filtered_detections))
 
         return DetectionResponse(
             detections=detections_out,
@@ -153,7 +125,6 @@ async def detect_fruits_upload(
                 "size_bytes": len(image_data),
                 "content_type": image.content_type,
             },
-            image_size=result.get('image_size'),
             annotated_image=annotated_image,
         )
 
@@ -163,14 +134,8 @@ async def detect_fruits_upload(
 @app.get("/api/stats")
 async def get_detection_stats():
     """Get detection statistics and model info."""
-    model_info = {}
-    if AI_AVAILABLE:
-        model_info = yolo_detector.get_info()
-    else:
-        model_info = lightweight_detector.get_info()
-        
     return {
-        "model_info": model_info,
+        "model_info": get_available_fruits(),
         "api_endpoints": [
             "GET  /api/health          — Health check",
             "GET  /api/fruits          — Available fruit classes",
@@ -186,9 +151,9 @@ async def get_detection_stats():
 @app.get("/")
 async def root():
     return {
-        "message":     "YOLO-World Fruit Detection API v4.0",
-        "description": "AI-powered fruit detection using YOLO-World open-vocabulary model",
-        "mode":        "yolo_world" if AI_AVAILABLE else "lightweight_fallback",
+        "message":     "Lightweight Fruit Detection API v3.0",
+        "description": "Fast, serverless-optimized fruit detection",
+        "mode":        "lightweight_only",
         "endpoints": {
             "health":         "/api/health",
             "fruits":         "/api/fruits",
@@ -200,6 +165,6 @@ async def root():
 
 if __name__ == "__main__":
     import uvicorn
-    print("🚀 Khởi động YOLO-World Fruit Detection API tại http://127.0.0.1:8000")
-    print("📖 API Documentation: http://127.0.0.1:8000/docs")
+    print("Khởi động Lightweight FastAPI Server tại http://127.0.0.1:8000")
+    print("API Documentation: http://127.0.0.1:8000/docs")
     uvicorn.run(app, host="0.0.0.0", port=8000)
