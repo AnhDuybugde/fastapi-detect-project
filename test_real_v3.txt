@@ -1,0 +1,13 @@
+﻿=== Real Watermelon Photo Test ===
+  Mango | 69.0%
+
+=== flamegrapes2.jpg ===
+  Watermelon | 43.0%
+  Apple | 23.0%
+  Apple | 21.9%
+
+=== chuoi-trai-01.jpg ===
+  Banana | 99.9%
+
+=== pommier-oiase-apple-tree-f1.jpg ===
+  Apple | 97.3%
