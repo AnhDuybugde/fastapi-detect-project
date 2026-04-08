@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fruit Detection AI - Hê thong Nhan dang Trai cay</title>
+    <title>Fruit Detection AI - Hệ thống Nhận dạng Trái cây (YOLO-World)</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -306,7 +306,7 @@
     <div class="main-container">
         <div class="header-section">
             <h1><i class="fas fa-apple-alt"></i> Fruit Detection AI</h1>
-            <p>Hê thong nhan dang trai cay thong minh bang YOLO</p>
+            <p>Hệ thống nhận dạng trái cây thông minh bằng YOLO-World AI</p>
         </div>
 
         <div class="content-section">
@@ -394,8 +394,8 @@
                             <div class="mb-3">
                                 <label for="confidenceThreshold" class="form-label">Nguong tin cay</label>
                                 <input type="range" class="form-range" id="confidenceThreshold" 
-                                       min="0.1" max="1.0" step="0.1" value="0.5">
-                                <small class="form-text">Gia tri: <span id="thresholdValue">0.5</span></small>
+                                       min="0.05" max="1.0" step="0.05" value="0.25">
+                                <small class="form-text">Giá trị: <span id="thresholdValue">0.25</span></small>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="showLabels" checked>
@@ -418,10 +418,13 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Production Backend URL (Render.com)
-        const API_BASE_URL = 'https://fastapi-detect-project.onrender.com';
-        // For local testing:
-        // const API_BASE_URL = 'http://127.0.0.1:8000';
+        // ══════════════════════════════════════════════════════════
+        // Backend URL Configuration
+        // ──────────────────────────────────────────────────────────
+        // LOCAL  : http://127.0.0.1:8000
+        // RENDER : https://your-app.onrender.com  ← đổi khi deploy
+        // ══════════════════════════════════════════════════════════
+        const API_BASE_URL = 'http://127.0.0.1:8000';
         
         let availableFruits = [];
         let currentImage = null;
@@ -455,14 +458,14 @@
         function updateFruitGallery() {
             const gallery = document.getElementById('fruitGallery');
             const fruitEmojis = {
-                'banana': '??',
-                'apple': '??',
-                'orange': '??',
-                'grape': '??',
-                'watermelon': '??',
-                'strawberry': '??',
-                'mango': '??',
-                'pineapple': '??'
+                'banana': '🍌',
+                'apple': '🍎',
+                'orange': '🍊',
+                'grape': '🍇',
+                'watermelon': '🍉',
+                'strawberry': '🍓',
+                'mango': '🥭',
+                'pineapple': '🍍'
             };
 
             gallery.innerHTML = availableFruits.map(fruit => `
@@ -543,7 +546,7 @@
                 
                 if (response.ok) {
                     showResults(data);
-                    drawDetections(data.detections);
+                    drawDetections(data.detections, data.image_size);
                 } else {
                     alert(`Loi: ${data.detail || 'Khong the nhan dang anh'}`);
                 }
@@ -588,20 +591,24 @@
             resultsSection.classList.add('show');
         }
 
-        function drawDetections(detections) {
+        function drawDetections(detections, imageSize) {
             const overlay = document.getElementById('detectionOverlay');
             const showLabels = document.getElementById('showLabels').checked;
             
             overlay.innerHTML = '';
             
+            // Use actual image dimensions from API response
+            const imgWidth = (imageSize && imageSize.width) ? imageSize.width : 640;
+            const imgHeight = (imageSize && imageSize.height) ? imageSize.height : 480;
+            
             detections.forEach(detection => {
                 const box = document.createElement('div');
                 box.className = 'bounding-box';
                 box.style.borderColor = detection.color;
-                box.style.left = `${(detection.bbox.x_min / 640) * 100}%`;
-                box.style.top = `${(detection.bbox.y_min / 480) * 100}%`;
-                box.style.width = `${(detection.bbox.width / 640) * 100}%`;
-                box.style.height = `${(detection.bbox.height / 480) * 100}%`;
+                box.style.left = `${(detection.bbox.x_min / imgWidth) * 100}%`;
+                box.style.top = `${(detection.bbox.y_min / imgHeight) * 100}%`;
+                box.style.width = `${(detection.bbox.width / imgWidth) * 100}%`;
+                box.style.height = `${(detection.bbox.height / imgHeight) * 100}%`;
 
                 if (showLabels) {
                     const label = document.createElement('div');
