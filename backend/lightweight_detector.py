@@ -223,13 +223,11 @@ class LightweightFruitDetector:
         return {
             'classes':       list(self.fruit_classes.keys()),
             'total_classes': len(self.fruit_classes),
-            'model_info': {
-                'name':                 'Lightweight Fruit Detector v1.0',
-                'type':                 'Shape-based detection',
-                'input_size':           '640x480',
-                'confidence_threshold': 0.5,
-                'description':          'Fast, lightweight detection for serverless deployment',
-            },
+            'name':          'Lightweight Fruit Detector v1.0',
+            'type':          'Shape-based detection',
+            'input_size':    '640x480',
+            'confidence_threshold': 0.5,
+            'description':   'Fast, lightweight detection for serverless deployment',
         }
 
 # Global detector instance
