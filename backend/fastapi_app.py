@@ -36,6 +36,8 @@ class Detection(BaseModel):
     color: str
 
 class DetectionResponse(BaseModel):
+    model_config = {"protected_namespaces": ()}
+    
     detections: List[Detection]
     total_detections: int
     detected_classes: List[str]
