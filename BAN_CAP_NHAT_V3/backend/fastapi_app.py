@@ -18,14 +18,14 @@ try:
 except ImportError:
     AI_AVAILABLE = False
 
-def detect_fruits_in_image(image_bytes: bytes, conf_threshold: float = 0.5):
+def detect_fruits_in_image(image_bytes: bytes):
     if AI_AVAILABLE and yolo_detector.model is not None:
-        return yolo_detector.detect_image(image_bytes, conf_threshold)
+        return yolo_detector.detect_image(image_bytes)
     elif AI_AVAILABLE:
         # Load the model the first time
         yolo_detector.load_model()
         if yolo_detector.model is not None:
-             return yolo_detector.detect_image(image_bytes, conf_threshold)
+             return yolo_detector.detect_image(image_bytes)
              
     # Fallback to lightweight
     return lw_detect(image_bytes)
@@ -109,8 +109,8 @@ async def detect_fruits_upload(
     try:
         start_time = time.time()
 
-        # Dùng model với biến conf
-        result = detect_fruits_in_image(image_data, confidence_threshold)
+        # Simple: chỉ dùng lightweight detection
+        result = detect_fruits_in_image(image_data)
 
         processing_time = time.time() - start_time
 
